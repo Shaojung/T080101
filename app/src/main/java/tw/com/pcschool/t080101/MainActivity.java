@@ -68,15 +68,28 @@ public class MainActivity extends AppCompatActivity {
                     xpp.setInput( new StringReader(result) );
 
                     int eventType = xpp.getEventType();
+                    boolean isTitle = false;
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         if(eventType == XmlPullParser.START_DOCUMENT) {
                             Log.d("READ", "Start document");
                         } else if(eventType == XmlPullParser.START_TAG) {
-                            Log.d("READ", "Start tag "+xpp.getName());
+                            // Log.d("READ", "Start tag "+xpp.getName());
+                            if (xpp.getName().equals("title"))
+                            {
+                                isTitle = true;
+                            }
                         } else if(eventType == XmlPullParser.END_TAG) {
-                            Log.d("READ", "End tag "+xpp.getName());
+                            // Log.d("READ", "End tag "+xpp.getName());
+                            if (xpp.getName().equals("title"))
+                            {
+                                isTitle = false;
+                            }
                         } else if(eventType == XmlPullParser.TEXT) {
-                            Log.d("READ", "Text "+xpp.getText());
+                            if (isTitle == true)
+                            {
+                                Log.d("READ", "Text "+xpp.getText());
+                            }
+
                         }
                         eventType = xpp.next();
                     }
@@ -87,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
 
 
             }
