@@ -32,11 +32,16 @@ public class MainActivity extends AppCompatActivity {
 
                     InputStream is = conn.getInputStream();
                     BufferedReader r = new BufferedReader(new InputStreamReader(is));
-                    String x = "";
-                    do {
-                        Log.d("READ", x);
+
+                    StringBuilder sb = new StringBuilder();
+                    String x = r.readLine();
+                    while (x != null)
+                    {
+                        sb.append(x);
                         x = r.readLine();
-                    }while (!x.equals(""));
+                    }
+
+                    Log.d("READ", sb.toString());
 
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
