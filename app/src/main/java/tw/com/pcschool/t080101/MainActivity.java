@@ -1,8 +1,11 @@
 package tw.com.pcschool.t080101;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -18,13 +21,22 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    ArrayList<String> news;
+    ListView lv;
+    ArrayAdapter adapter;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        handler = new Handler();
+        news = new ArrayList<>();
+        lv = (ListView) findViewById(R.id.listView);
 
         new Thread(){
             public void run(){
@@ -88,12 +100,25 @@ public class MainActivity extends AppCompatActivity {
                             if (isTitle == true)
                             {
                                 Log.d("READ", "Text "+xpp.getText());
+                                news.add(xpp.getText());
                             }
 
                         }
                         eventType = xpp.next();
                     }
                     System.out.println("End document");
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter = new ArrayAdapter(MainActivity.this,
+                                    android.R.layout.simple_list_item_1,
+                                    news);
+                            lv.setAdapter(adapter);
+
+                        }
+                    });
+
 
                 } catch (XmlPullParserException e) {
                     e.printStackTrace();
