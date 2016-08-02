@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
                     int eventType = xpp.getEventType();
                     boolean isTitle = false;
+                    boolean isItem = false;
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         if(eventType == XmlPullParser.START_DOCUMENT) {
                             Log.d("READ", "Start document");
@@ -90,14 +91,22 @@ public class MainActivity extends AppCompatActivity {
                             {
                                 isTitle = true;
                             }
+                            if (xpp.getName().equals("item"))
+                            {
+                                isItem = true;
+                            }
                         } else if(eventType == XmlPullParser.END_TAG) {
                             // Log.d("READ", "End tag "+xpp.getName());
                             if (xpp.getName().equals("title"))
                             {
                                 isTitle = false;
                             }
+                            if (xpp.getName().equals("title"))
+                            {
+                                isItem = false;
+                            }
                         } else if(eventType == XmlPullParser.TEXT) {
-                            if (isTitle == true)
+                            if (isTitle == true && isItem == true)
                             {
                                 Log.d("READ", "Text "+xpp.getText());
                                 news.add(xpp.getText());
