@@ -1,9 +1,13 @@
 package tw.com.pcschool.t080101;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -24,7 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> news;
+    ArrayList<String> news, links;
     ListView lv;
     ArrayAdapter adapter;
     Handler handler;
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         handler = new Handler();
         news = new ArrayList<>();
+        links = new ArrayList<>();
         lv = (ListView) findViewById(R.id.listView);
 
         new Thread(){
@@ -82,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     int eventType = xpp.getEventType();
                     boolean isTitle = false;
                     boolean isItem = false;
+                    boolean isLink = false;
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         if(eventType == XmlPullParser.START_DOCUMENT) {
                             Log.d("READ", "Start document");
@@ -95,21 +101,34 @@ public class MainActivity extends AppCompatActivity {
                             {
                                 isItem = true;
                             }
+                            if (xpp.getName().equals("link"))
+                            {
+                                isLink = true;
+                            }
                         } else if(eventType == XmlPullParser.END_TAG) {
                             // Log.d("READ", "End tag "+xpp.getName());
                             if (xpp.getName().equals("title"))
                             {
                                 isTitle = false;
                             }
-                            if (xpp.getName().equals("title"))
+                            if (xpp.getName().equals("item"))
                             {
                                 isItem = false;
+                            }
+                            if (xpp.getName().equals("link"))
+                            {
+                                isLink = false;
                             }
                         } else if(eventType == XmlPullParser.TEXT) {
                             if (isTitle == true && isItem == true)
                             {
                                 Log.d("READ", "Text "+xpp.getText());
                                 news.add(xpp.getText());
+                            }
+                            if (isLink == true && isItem == true)
+                            {
+                                Log.d("READ", "Link:"+xpp.getText());
+                                links.add(xpp.getText());
                             }
 
                         }
@@ -125,6 +144,15 @@ public class MainActivity extends AppCompatActivity {
                                     news);
                             lv.setAdapter(adapter);
 
+                            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                                    Uri uri=Uri.parse(links.get(position));
+                                    Intent i=new Intent(Intent.ACTION_VIEW,uri);
+                                    startActivity(i);
+                                }
+                            });
                         }
                     });
 
