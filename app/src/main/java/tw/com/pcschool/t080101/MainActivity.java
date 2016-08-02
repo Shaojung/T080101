@@ -28,7 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> news, links;
+    ArrayList<NewsItem> news;
     ListView lv;
     ArrayAdapter adapter;
     Handler handler;
@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
 
         handler = new Handler();
         news = new ArrayList<>();
-        links = new ArrayList<>();
         lv = (ListView) findViewById(R.id.listView);
 
         new Thread(){
@@ -88,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     boolean isTitle = false;
                     boolean isItem = false;
                     boolean isLink = false;
+                    NewsItem currentItem = null;
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         if(eventType == XmlPullParser.START_DOCUMENT) {
                             Log.d("READ", "Start document");
@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                             if (xpp.getName().equals("item"))
                             {
                                 isItem = true;
+                                currentItem = new NewsItem();
                             }
                             if (xpp.getName().equals("link"))
                             {
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                             if (xpp.getName().equals("item"))
                             {
                                 isItem = false;
+                                news.add(currentItem);
                             }
                             if (xpp.getName().equals("link"))
                             {
@@ -123,12 +125,12 @@ public class MainActivity extends AppCompatActivity {
                             if (isTitle == true && isItem == true)
                             {
                                 Log.d("READ", "Text "+xpp.getText());
-                                news.add(xpp.getText());
+                                currentItem.mTitle = xpp.getText();
                             }
                             if (isLink == true && isItem == true)
                             {
                                 Log.d("READ", "Link:"+xpp.getText());
-                                links.add(xpp.getText());
+                                currentItem.mLink = xpp.getText();
                             }
 
                         }
@@ -139,16 +141,21 @@ public class MainActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            String[] s = new String[news.size()];
+                            for (int i=0;i<news.size();i++)
+                            {
+                                s[i] = news.get(i).mTitle;
+                            }
                             adapter = new ArrayAdapter(MainActivity.this,
                                     android.R.layout.simple_list_item_1,
-                                    news);
+                                    s);
                             lv.setAdapter(adapter);
 
                             lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                                    Uri uri=Uri.parse(links.get(position));
+                                    Uri uri=Uri.parse(news.get(position).mLink);
                                     Intent i=new Intent(Intent.ACTION_VIEW,uri);
                                     startActivity(i);
                                 }
